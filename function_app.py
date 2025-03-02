@@ -18,7 +18,6 @@ def RunBotFunction(myTimer: func.TimerRequest) -> None:
 @app.function_name(name="ManualRunBotFunction")
 @app.route(route="manual-run", methods=["GET"])
 def ManualRunBotFunction(req: func.HttpRequest) -> func.HttpResponse:
-    # Llama a la misma lógica que en RunBotFunction
     logging.info("Ejecución manual del bot.")
     result = subprocess.run([sys.executable, "lanzador.py"], capture_output=True, text=True)
     if result.returncode != 0:
@@ -27,3 +26,18 @@ def ManualRunBotFunction(req: func.HttpRequest) -> func.HttpResponse:
     else:
         logging.info("Éxito: %s", result.stdout)
         return func.HttpResponse(f"Éxito: {result.stdout}", status_code=200)
+
+# Endpoint temporal para listar las dependencias instaladas
+@app.function_name(name="ListPackagesFunction")
+@app.route(route="list-packages", methods=["GET"])
+def ListPackagesFunction(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("Ejecutando pip freeze para listar paquetes instalados...")
+    try:
+        result = subprocess.run(["pip", "freeze"], capture_output=True, text=True)
+        if result.returncode != 0:
+            logging.error("Error al ejecutar pip freeze: %s", result.stderr)
+            return func.HttpResponse(f"Error al ejecutar pip freeze:\n{result.stderr}", status_code=500)
+        return func.HttpResponse(result.stdout, status_code=200, mimetype="text/plain")
+    except Exception as e:
+        logging.error("Excepción: %s", e)
+        return func.HttpResponse(f"Excepción: {e}", status_code=500)
