@@ -33,7 +33,7 @@ def ManualRunBotFunction(req: func.HttpRequest) -> func.HttpResponse:
 def ListPackagesFunction(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Ejecutando pip freeze para listar paquetes instalados...")
     try:
-        result = subprocess.run(["pip", "freeze"], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True)
         if result.returncode != 0:
             logging.error("Error al ejecutar pip freeze: %s", result.stderr)
             return func.HttpResponse(f"Error al ejecutar pip freeze:\n{result.stderr}", status_code=500)
