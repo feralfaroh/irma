@@ -136,4 +136,10 @@ __azurite_db*__.json
 
 #Claves
 config.py
+
+#Archivos
 descargas
+
+#Drivers
+chromedriver
+reporte_chedlink.html
