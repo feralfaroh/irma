@@ -136,6 +136,7 @@ __azurite_db*__.json
 
 #Claves
 config.py
+sk.py
 
 #Archivos
 descargas

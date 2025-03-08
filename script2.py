@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 import sys
 import snowflake.connector
-from config import CONFIG
+from sk import CONFIG
 
 # Configuración de la API Ninox
 ninox_url = CONFIG["ninox"]["url"]
