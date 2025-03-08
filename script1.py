@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from sk import CONFIG
+from webdriver_manager.chrome import ChromeDriverManager  # <-- Nuevo import
 
 def wait_for_window(driver, old_handles, timeout=2):
     """
@@ -173,25 +174,30 @@ def procesar_csv(archivo_entrada):
         df.to_csv(archivo_procesado, index=False, encoding='latin1')
         print(f"Archivo procesado guardado como: {archivo_procesado}")
         
-    
     except Exception as e:
         print(f'Error al procesar el archivo: {e}')
 
 # CONFIGURACIÓN DE SELENIUM
-CHROMEDRIVER_PATH = "/home/site/wwwroot/chromedriver.exe"
+
+# Eliminamos la referencia al ChromeDriver de Windows
+# CHROMEDRIVER_PATH = "/home/site/wwwroot/chromedriver.exe"
+
+from selenium.webdriver.chrome.options import Options  # Ya importado, pero para aclarar
+
 options = webdriver.ChromeOptions()
-# Eliminar la opción "detach" y agregar modo headless para no mostrar la interfaz
+# Ejecutar en modo headless y sin GPU
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
 
-# Configurar el directorio de descargas en Chrome
+# Configurar el directorio de descargas en Chrome (usa /tmp para escritura en Azure Functions)
 DOWNLOAD_DIR = os.path.join("/tmp", "descargas")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 prefs = {"download.default_directory": DOWNLOAD_DIR}
 options.add_experimental_option("prefs", prefs)
 
-service = Service(CHROMEDRIVER_PATH)
+# Usar webdriver_manager para instalar el ChromeDriver adecuado para Linux
+service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
 try:
