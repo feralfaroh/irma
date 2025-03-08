@@ -56,3 +56,4 @@ wcwidth
 webdriver-manager
 websocket-client
 wsproto
+playwright
