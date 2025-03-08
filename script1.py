@@ -186,7 +186,7 @@ options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
 
 # Configurar el directorio de descargas en Chrome
-DOWNLOAD_DIR = os.path.join(os.getcwd(), "descargas")
+DOWNLOAD_DIR = os.path.join("/tmp", "descargas")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 prefs = {"download.default_directory": DOWNLOAD_DIR}
 options.add_experimental_option("prefs", prefs)
