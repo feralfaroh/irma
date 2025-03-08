@@ -178,7 +178,7 @@ def procesar_csv(archivo_entrada):
         print(f'Error al procesar el archivo: {e}')
 
 # CONFIGURACIÓN DE SELENIUM
-CHROMEDRIVER_PATH = os.path.join("chromedriver.exe")
+CHROMEDRIVER_PATH = "/home/site/wwwroot/chromedriver.exe"
 options = webdriver.ChromeOptions()
 # Eliminar la opción "detach" y agregar modo headless para no mostrar la interfaz
 options.add_argument('--headless')
