@@ -127,9 +127,7 @@ def insertar_en_snowflake(registros):
         valores_a_insertar.append(fila)
     
     try:
-        conn = snowflake.connector.connect(
-            CONFIG["snowflake"]
-        )
+        conn = snowflake.connector.connect(**CONFIG["snowflake"])
         cursor = conn.cursor()
         cursor.executemany(insert_query, valores_a_insertar)
         conn.commit()
@@ -147,7 +145,7 @@ def main():
     if len(sys.argv) > 1:
         ruta_csv = sys.argv[1]
     else:
-        ruta_csv = r"descargas\e_27022025_517.csv"
+        ruta_csv = r"descargas\e_06032025_508.csv"
     
     print("Verificando ruta CSV...")
     print("Ruta CSV:", ruta_csv)
