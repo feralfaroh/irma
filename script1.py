@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from config import CONFIG
+from sk import CONFIG
 
 def wait_for_window(driver, old_handles, timeout=2):
     """
