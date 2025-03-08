@@ -48,3 +48,22 @@ def ListPackagesFunction(req: func.HttpRequest) -> func.HttpResponse:
     except Exception as e:
         logging.error("Excepción: %s", e)
         return func.HttpResponse(f"Excepción: {e}", status_code=500)
+
+@app.function_name(name="CheckChromiumFunction")
+@app.route(route="check-chromium", methods=["GET"])
+def CheckChromiumFunction(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Ejecuta el comando 'which chromium-browser' para verificar si Chromium está instalado.
+    """
+    logging.info("Verificando la existencia de Chromium...")
+    try:
+        result = subprocess.run(["which", "chromium-browser"], capture_output=True, text=True, env=env)
+        path = result.stdout.strip()
+        if path:
+            message = f"Chromium está instalado en: {path}"
+        else:
+            message = "Chromium no está instalado o no se encontró 'chromium-browser'."
+        return func.HttpResponse(message, status_code=200, mimetype="text/plain")
+    except Exception as e:
+        logging.error("Error al verificar Chromium: %s", e)
+        return func.HttpResponse(f"Error: {e}", status_code=500)
