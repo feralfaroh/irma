@@ -1,12 +1,6 @@
-import os
 import subprocess
 import sys
 import re
-
-# Agrega la ruta a .python_packages/lib/site-packages al inicio de sys.path
-package_path = os.path.join(os.getcwd(), '.python_packages', 'lib', 'site-packages')
-if package_path not in sys.path:
-    sys.path.insert(0, package_path)
 
 def main():
     # 1. Ejecutar script1.py y capturar su salida
