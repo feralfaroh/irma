@@ -3,6 +3,9 @@ import os
 import csv
 import numpy as np
 import pandas as pd
+import uuid                # <-- Agregado
+import tempfile           # <-- Agregado
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -10,7 +13,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from sk import CONFIG
-from webdriver_manager.chrome import ChromeDriverManager  # <-- Nuevo import
 
 def wait_for_window(driver, old_handles, timeout=2):
     """
@@ -177,27 +179,30 @@ def procesar_csv(archivo_entrada):
     except Exception as e:
         print(f'Error al procesar el archivo: {e}')
 
-# CONFIGURACIÓN DE SELENIUM
+# ============== CONFIGURACIÓN DE SELENIUM ==============
+from selenium.webdriver.chrome.options import Options
 
-# Eliminamos la referencia al ChromeDriver de Windows
-# CHROMEDRIVER_PATH = "/home/site/wwwroot/chromedriver.exe"
-
-from selenium.webdriver.chrome.options import Options  # Ya importado, pero para aclarar
+# Generamos un directorio temporal único para el perfil
+tmp_data_dir = os.path.join(tempfile.gettempdir(), f"chrome-userdata-{uuid.uuid4()}")
 
 options = webdriver.ChromeOptions()
-# Ejecutar en modo headless y sin GPU
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
+# Agregamos el user-data-dir para evitar conflicto de perfiles
+options.add_argument(f'--user-data-dir={tmp_data_dir}')
 
-# Configurar el directorio de descargas en Chrome (usa /tmp para escritura en Azure Functions)
+# Indicar la ubicación del binario de Chromium
+options.binary_location = "/usr/bin/chromium"
+
+# Configurar el directorio de descargas (usando /tmp, adecuado para Azure Functions)
 DOWNLOAD_DIR = os.path.join("/tmp", "descargas")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 prefs = {"download.default_directory": DOWNLOAD_DIR}
 options.add_experimental_option("prefs", prefs)
 
-# Usar webdriver_manager para instalar el ChromeDriver adecuado para Linux
-service = Service(ChromeDriverManager().install())
+# En lugar de usar webdriver_manager, usamos el chromedriver copiado en el contenedor
+service = Service('/usr/local/bin/chromedriver')
 driver = webdriver.Chrome(service=service, options=options)
 
 try:
@@ -224,7 +229,6 @@ try:
         print("Parece que no se inició sesión. Verifica credenciales o selectores.")
     else:
         print("¡Sesión iniciada correctamente!")
-        
         # 4. ABRIR REPORTE
         reporte_url = ("https://chedlink.chedraui.com.mx/Artus/g940/openfav.php?"
                        "bRep=0&key=67795&bPDF=0&bPPT=0&bExcel=0&bEditMode=0&ckid=")
@@ -245,7 +249,6 @@ try:
         element = wait.until(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "#menu_0_row_1 > .cellStyle:nth-child(2)")
         ))
-        # Almacenar el handle de la ventana principal
         root_window = driver.current_window_handle
         old_handles = [root_window]
         element.click()
@@ -255,26 +258,17 @@ try:
         if new_window:
             driver.switch_to.window(new_window)
             print("Nueva ventana detectada. Esperando a que se descargue el reporte...")
-            # Espera inicial para iniciar la descarga
             time.sleep(5)
             csv_file_path = wait_for_csv_file(DOWNLOAD_DIR, timeout=60)
             if csv_file_path:
                 print("Archivo CSV detectado:", csv_file_path)
             else:
                 print("No se detectó el archivo CSV en el directorio de descargas.")
-            
-            # Verificar que la ventana de descarga siga abierta antes de cerrarla
             if new_window in driver.window_handles:
                 driver.close()
-            else:
-                print("La ventana de descarga ya se cerró automáticamente.")
-            
-            # Verificar que la ventana principal siga abierta antes de cambiar
             if root_window in driver.window_handles:
                 driver.switch_to.window(root_window)
                 print("Regresado a la ventana principal.")
-            else:
-                print("La ventana principal ya no está disponible.")
         else:
             print("No se detectó nueva ventana tras el clic.")
 
