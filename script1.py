@@ -183,7 +183,7 @@ options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
-# options.add_argument('--incognito')              # Modo incógnito para evitar conflictos de perfil
+# options.add_argument('--incognito')  # Modo incógnito deshabilitado para permitir apertura de ventana
 options.add_argument('--no-sandbox')             # Recomendado en Docker/Azure Functions
 options.add_argument('--disable-dev-shm-usage')  # Evita problemas de memoria compartida
 
@@ -244,31 +244,15 @@ try:
         element = wait.until(EC.element_to_be_clickable(
              (By.CSS_SELECTOR, "#menu_0_row_1 > .cellStyle:nth-child(2)")
         ))
-        root_window = driver.current_window_handle
-        old_handles = [root_window]
         element.click()
 
-        # Inicializamos csv_file_path para evitar el error
-        csv_file_path = None
-
-        # 8. Esperar que se abra una nueva ventana (para la descarga)
-        new_window = wait_for_window(driver, old_handles, timeout=2)
-        if new_window:
-            driver.switch_to.window(new_window)
-            print("Nueva ventana detectada. Esperando a que se descargue el reporte...")
-            time.sleep(5)
-            csv_file_path = wait_for_csv_file(DOWNLOAD_DIR, timeout=60)
-            if csv_file_path:
-                print("Archivo CSV detectado:", csv_file_path)
-            else:
-                print("No se detectó el archivo CSV en el directorio de descargas.")
-            if new_window in driver.window_handles:
-                driver.close()
-            if root_window in driver.window_handles:
-                driver.switch_to.window(root_window)
-                print("Regresado a la ventana principal.")
+        # En este flujo, en lugar de esperar una nueva ventana, esperamos directamente que se descargue el CSV.
+        time.sleep(10)  # Ajusta este tiempo si es necesario
+        csv_file_path = wait_for_csv_file(DOWNLOAD_DIR, timeout=60)
+        if csv_file_path:
+            print("Archivo CSV detectado:", csv_file_path)
         else:
-            print("No se detectó nueva ventana tras el clic.")
+            print("No se detectó el archivo CSV en el directorio de descargas.")
 
         # 9. Guardar el HTML de la página actual
         page_source = driver.page_source
