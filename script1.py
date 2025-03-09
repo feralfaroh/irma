@@ -3,9 +3,6 @@ import os
 import csv
 import numpy as np
 import pandas as pd
-import uuid                # <-- Agregado
-import tempfile           # <-- Agregado
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -179,18 +176,16 @@ def procesar_csv(archivo_entrada):
     except Exception as e:
         print(f'Error al procesar el archivo: {e}')
 
-# ============== CONFIGURACIÓN DE SELENIUM ==============
+# =================== CONFIGURACIÓN DE SELENIUM ===================
 from selenium.webdriver.chrome.options import Options
-
-# Generamos un directorio temporal único para el perfil
-tmp_data_dir = os.path.join(tempfile.gettempdir(), f"chrome-userdata-{uuid.uuid4()}")
 
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
-# Agregamos el user-data-dir para evitar conflicto de perfiles
-options.add_argument(f'--user-data-dir={tmp_data_dir}')
+options.add_argument('--incognito')              # Modo incógnito para evitar conflictos de perfil
+options.add_argument('--no-sandbox')             # Recomendado en Docker/Azure Functions
+options.add_argument('--disable-dev-shm-usage')  # Evita problemas de memoria compartida
 
 # Indicar la ubicación del binario de Chromium
 options.binary_location = "/usr/bin/chromium"
@@ -201,7 +196,7 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 prefs = {"download.default_directory": DOWNLOAD_DIR}
 options.add_experimental_option("prefs", prefs)
 
-# En lugar de usar webdriver_manager, usamos el chromedriver copiado en el contenedor
+# Usar el chromedriver copiado en el contenedor
 service = Service('/usr/local/bin/chromedriver')
 driver = webdriver.Chrome(service=service, options=options)
 
