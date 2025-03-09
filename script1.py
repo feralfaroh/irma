@@ -183,7 +183,7 @@ options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
-options.add_argument('--incognito')              # Modo incógnito para evitar conflictos de perfil
+# options.add_argument('--incognito')              # Modo incógnito para evitar conflictos de perfil
 options.add_argument('--no-sandbox')             # Recomendado en Docker/Azure Functions
 options.add_argument('--disable-dev-shm-usage')  # Evita problemas de memoria compartida
 
@@ -242,11 +242,14 @@ try:
         # 7. Esperar y hacer clic en el elemento que inicia la descarga
         wait = WebDriverWait(driver, 20)
         element = wait.until(EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, "#menu_0_row_1 > .cellStyle:nth-child(2)")
+             (By.CSS_SELECTOR, "#menu_0_row_1 > .cellStyle:nth-child(2)")
         ))
         root_window = driver.current_window_handle
         old_handles = [root_window]
         element.click()
+
+        # Inicializamos csv_file_path para evitar el error
+        csv_file_path = None
 
         # 8. Esperar que se abra una nueva ventana (para la descarga)
         new_window = wait_for_window(driver, old_handles, timeout=2)
