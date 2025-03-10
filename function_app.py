@@ -14,7 +14,7 @@ env["PYTHONPATH"] = package_path + os.pathsep + env.get("PYTHONPATH", "")
 app = func.FunctionApp()
 
 @app.function_name(name="RunBotFunction")
-@app.timer_trigger(schedule="0 0 15 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False)
+@app.timer_trigger(schedule="0 10 13 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False)
 def RunBotFunction(myTimer: func.TimerRequest) -> None:
     logging.info("Timer trigger ejecutado.")
     result = subprocess.run([sys.executable, "lanzador.py"], capture_output=True, text=True, env=env)
